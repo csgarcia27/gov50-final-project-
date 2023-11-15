@@ -1,6 +1,6 @@
 ---
 title: "Gov 50 Final Project"
-author: "Your Name Here"
+author: "Cynthia Garcia"
 description: "My final project"
 output:
   distill::distill_article:
@@ -11,4 +11,43 @@ output:
 
 ## Project thoughts
 
-I am interested in exploring data related to...
+I am not decided on what I want my project to be. I am very interested in the law and so I think it would be interesting to collect data relating to a topic on that. One idea would be looking into the Supreme Court, specifically, their patterns in decision-making and how that is affected based upon the political makeup of the court. I am still open to other ideas but that is a direction I definitely see myself heading to.
+
+## Project Proposal
+
+Do court justices fulfill their duty of remaining impartial when deciding cases? In this study, I plan to examine the connection between the background of justices and how those biases may align with the decisions made on important court cases. I think it would also be interesting to explore how these trends have developed over time - if over the years decision have become more or less biased. I believe that justices are inherently supposed to not let outside factor influence their interpretation of the law and it has been a continuous question throughout history whether they actually complete this task. I hypothesize that justices are not fulfilling their occupational responsibility and being influenced by their own beliefs. Furthermore, I think that over the years these justices have increasingly become more biased. This is because there has been increasing polarity over politics and I think that as society has progressed people have aligned more with parties. The explanatory variables are those that align with possible biases such as parties and appointments. These variables will be measured from a database on the Court of Justice of the European Union. I think it is particularly interesting to explore courts outside of the United States especially because the politics are differing. Then the variable I observe would be the decisions table which include variables such as judgments or opinions. Depending on how the judgements and opinions parallel or show correlation to the biases above that would provide a question that answer my research question. 
+
+Furthermore, I would like to note that I loaded the data into R but I'm not sure if its supposed to show up anywhere but if need be I do have photographic evidence that my data set is in my Gov50 Final Project and that it has been loaded into R. 
+
+
+## Update - Data Change
+
+I switched my data from the European Justice Court to focus on United States District Courts instead. However, my research question of "Do court justices fulfill their duty of remaining impartial when deciding cases?" remains and I will still observe similar dependent and independent variables to determine this
+
+##Loading data
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(haven)
+fdc_data <- read_dta("fdcdata_thru-2012_n=110977 (1).dta")
+```
+
+## Data Visualization
+
+```{r}
+chart_1 <- fdc_data |> 
+  group_by(casetype) |>
+  mutate(avg_libcon = mean(libcon)) |>
+  ggplot(mapping = aes(x = casetype,
+                                        y = avg_libcon)) +
+  geom_point(color = "steelblue") +
+  labs( 
+    x = "Type of Case",
+    y = "Mean Political Leaning for Case Decisions",
+    title = "Liberal or Conservative Leaning Decisions Per Case Type")
+
+chart_1
+```
+
+The chart above shows the average way district court leaned for different case types. With this visualization, I will be able to pinpoint certain case-types and scenarios in which courts were more conservative or less conservative and compare to another visualization chart of judges political leanings to determine if there is a correlation between judges possibly being more or less biased depending on case-type (possibly more biased when it comes to human rights cases over economic cases).
