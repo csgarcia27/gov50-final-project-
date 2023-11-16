@@ -40,7 +40,7 @@ chart_1 <- fdc_data |>
   group_by(casetype) |>
   mutate(avg_libcon = mean(libcon)) |>
   ggplot(mapping = aes(x = casetype,
-                                        y = avg_libcon)) +
+                       y = avg_libcon)) +
   geom_point(color = "steelblue") +
   labs( 
     x = "Type of Case",
@@ -51,3 +51,29 @@ chart_1
 ```
 
 The chart above shows the average way district court leaned for different case types. With this visualization, I will be able to pinpoint certain case-types and scenarios in which courts were more conservative or less conservative and compare to another visualization chart of judges political leanings to determine if there is a correlation between judges possibly being more or less biased depending on case-type (possibly more biased when it comes to human rights cases over economic cases).
+
+## Milestone 4 - Results from Analysis
+
+```{r}
+fdc_data <- fdc_data |>
+   mutate(
+    case_cat = case_when(category == 1 ~ "Criminal Justice Case",
+                         category == 2 ~ "Civil Liberties Case",
+                         category == 3 ~ "Economic Regulation Case")
+  ) 
+
+figure_2 <- fdc_data |> 
+  filter(party == 1 | party == 2) |>
+  group_by(party, case_cat) |>
+  summarize(
+    mean_decision = mean(libcon)
+  ) |>
+  pivot_wider(
+    names_from = party,
+    values_from = mean_decision
+  )
+
+knitr::kable(figure_2,  col.names = c("Case Category", "Democrat", "Republican"))
+```
+
+**note that 0 is conservative and 1 is liberal
