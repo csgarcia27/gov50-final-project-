@@ -76,4 +76,6 @@ figure_2 <- fdc_data |>
 knitr::kable(figure_2,  col.names = c("Case Category", "Democrat", "Republican"))
 ```
 
-**note that 0 is conservative and 1 is liberal
+**note that numbers closet to 0 are more conservative and 1 are more liberal
+
+From this chart, we can see that republican judges tend to vote more conservative than democrat judges amongst all case types. However it is thoroughly interesting that for civil liberties cases and criminal justice cases democrat judges have ideological decisions below .5 which menas a majority of the time they are leaning more conservative. Furthermore, it is also interesting that for economic regulation cases, republican judges have ideological decisions above .5 meaning they lean more liberal on those types of cases.
