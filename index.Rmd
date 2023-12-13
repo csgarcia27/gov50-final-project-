@@ -1,69 +1,104 @@
 ---
-title: "Gov 50 Final Project"
+title: "Impartiality in Rulings: Gov50 Final Project"
 author: "Cynthia Garcia"
-description: "My final project"
+description: "A report exploring the extent to which court justices impose their personal political ideologies onto decisions and rulings"
 output:
   distill::distill_article:
     self_contained: false
 ---
 
+## Introduction
 
+The 3rd Canon in the Code of Conduct for United States judges is as follows "a Judge should perform the duties of the office fairly, impartially and diligently." Following, the first standard of this canon states "a judge should be faithful to, and maintain professional competence in, the law and should not be swayed by partisan interests, public clamor, or fear of criticism". Despite this being their legal duty, throughout history, it has been a constant reoccurring question whether judges are able to make "fair" decisions when just as everyone else does they do have their own ideologies and agendas. Therefore, with this project I have set out to address and explore this focusing on the primary research question: Do United States court judges fulfill their professional duty of remaining impartial when deciding upon cases? In this study, I plan to examine the connection between the background and political leaning of judges and how certain biases derived from those may align with the decisions made on important court cases. I hypothesize that, ultimately, judges are not successful in executing their occupational responsibility of objectiveness and instead are letting their own outside beliefs influence their rulings. The null hypothesis would be that there is no relationship between judges political leanings or certain characteristics and the trends of their rulings. 
 
-## Project thoughts
+## The Data and Research Design
 
-I am not decided on what I want my project to be. I am very interested in the law and so I think it would be interesting to collect data relating to a topic on that. One idea would be looking into the Supreme Court, specifically, their patterns in decision-making and how that is affected based upon the political makeup of the court. I am still open to other ideas but that is a direction I definitely see myself heading to.
+To explore this relationship, I utilized the Carp-Manning U.S. District Court Case Database. This database contains decision-making data collected from the years of 1927 to 2012 on 110,000+ decisions made by federal court judges. All the cases in this data set were taken from the Federal Supplement which is the primary publication venue for U.S. district court rulings, however, it only includes cases determined to contain a "relevant and traditional" liberal-conservative dimension. This data set also includes information on 2,300 judges including personal attributes such as Party, Gender, and Race/Ethnicity. Carp and Manning compiled this data base by reading over 2000 volumes of the Federal supplement and categorizing and coding it into what I was able to use for my project today.
 
-## Project Proposal
+In this analysis I will be exploring one key independent variable that possible biases can be derived from which is Party meaning which political party the judge identifies with. My key dependent variable is LIBCON, which is the ideological direction of the decision. This dependent variable is coded 0 as conservative and 1 as liberal. I will also be exploring whether personal bias becomes more apparent in case rulings for certain case categories which I have mutated to be labeled as Criminal Justice, Civil Liberties or Economic Regulations. 
 
-Do court justices fulfill their duty of remaining impartial when deciding cases? In this study, I plan to examine the connection between the background of justices and how those biases may align with the decisions made on important court cases. I think it would also be interesting to explore how these trends have developed over time - if over the years decision have become more or less biased. I believe that justices are inherently supposed to not let outside factor influence their interpretation of the law and it has been a continuous question throughout history whether they actually complete this task. I hypothesize that justices are not fulfilling their occupational responsibility and being influenced by their own beliefs. Furthermore, I think that over the years these justices have increasingly become more biased. This is because there has been increasing polarity over politics and I think that as society has progressed people have aligned more with parties. The explanatory variables are those that align with possible biases such as parties and appointments. These variables will be measured from a database on the Court of Justice of the European Union. I think it is particularly interesting to explore courts outside of the United States especially because the politics are differing. Then the variable I observe would be the decisions table which include variables such as judgments or opinions. Depending on how the judgements and opinions parallel or show correlation to the biases above that would provide a question that answer my research question. 
+Because my report is seeking to identify a relationship between personal political ideologies/characteristics and case rulings, the research design is cross-sectional because the data is observational (however it is not exploring a change over time therefore does not qualify as a differences-in-differences or before-after) with correlational analysis meaning I intend to make no causal claims. 
 
-Furthermore, I would like to note that I loaded the data into R but I'm not sure if its supposed to show up anywhere but if need be I do have photographic evidence that my data set is in my Gov50 Final Project and that it has been loaded into R. 
-
-
-## Update - Data Change
-
-I switched my data from the European Justice Court to focus on United States District Courts instead. However, my research question of "Do court justices fulfill their duty of remaining impartial when deciding cases?" remains and I will still observe similar dependent and independent variables to determine this
-
-##Loading data
+### Loading the Data
 
 ```{r}
 library(ggplot2)
 library(tidyverse)
+library(infer)
 library(haven)
 fdc_data <- read_dta("fdcdata_thru-2012_n=110977 (1).dta")
+
 ```
 
-## Data Visualization
+### Summary Plot of the Dependent Variable: LIBCON
 
 ```{r}
-chart_1 <- fdc_data |> 
-  group_by(casetype) |>
-  mutate(avg_libcon = mean(libcon)) |>
-  ggplot(mapping = aes(x = casetype,
-                       y = avg_libcon)) +
-  geom_point(color = "steelblue") +
+dep_summary <- fdc_data |> 
+  group_by(lib_con = if_else(libcon == 1, 
+                             "Liberal", 
+                             "Conservative")) |>
+  ggplot(mapping = aes(x = lib_con, fill = lib_con)) +
+  geom_bar() +
+  scale_fill_manual(values = c(Conservative = "brown3", Liberal = "cornflowerblue")) + 
   labs( 
-    x = "Type of Case",
-    y = "Mean Political Leaning for Case Decisions",
-    title = "Liberal or Conservative Leaning Decisions Per Case Type")
+    x = "Case Political Leanings",
+    y = "Count",
+    title = "Amount of Case Decisions with Conservative or Liberal Case Rulings",
+    source = "Carp-Manning U.S District Court Case Database, 2016") + 
+  theme(legend.position = "none")
 
-chart_1
+dep_summary
 ```
 
-The chart above shows the average way district court leaned for different case types. With this visualization, I will be able to pinpoint certain case-types and scenarios in which courts were more conservative or less conservative and compare to another visualization chart of judges political leanings to determine if there is a correlation between judges possibly being more or less biased depending on case-type (possibly more biased when it comes to human rights cases over economic cases).
+My dependent variable for this project is whether a case ruling has the ideological direction of liberal or conservative. As the graph above shows, there are over 110,000 different case rulings in this dataset. Furthermore, we are able to observe from this chart that there are about 20,000 more cases with conservative decision ideology than liberal decision ideology.
 
-## Milestone 4 - Results from Analysis
+## Results
+
+### Altering data for regression
+
+In doing this, I wanted my regression to be separated by 3 distinct parties, therefore I mutated the party variable as seen below and saved it as fdc_data_reg so it does not affect the rest of my data.
 
 ```{r}
-fdc_data <- fdc_data |>
-   mutate(
+fdc_data_reg <- fdc_data |>
+  mutate(party = case_when(party == 1 ~ "Democrat",
+                           party == 2 ~ "Republican",
+                           party == 3 ~ "Independent"))
+```
+
+### Main Variable Regression
+
+My primary independent variable of interest is the party that judges find themselves identifying with. The regression table below displays the details for a regression evaluating strictly how the liberal and conservative leanings match up against people from certain parties. 
+
+```{r}
+main_regression <- lm(libcon ~ party, 
+                        data = fdc_data_reg)
+
+var_labels <- c(
+  "(Intercept)" = "Intercept",
+  "partyIndependent" = "Independent Party",
+  "partyRepublican" = "Republican Party"
+)
+
+modelsummary::modelsummary(list(Regression = main_regression),
+                           statistic = c("p = {p.value}"),
+                           coef_map = var_labels,
+                           gof_map = c("nobs", "r.squared", "adj.r.squared"))
+```
+
+It is important to note when analyzing that numbers closer to 0 indicate Conservative decisions, and numbers closer to 1 are Liberal decisions. As seen in the regression table above, the intercept is 0.471 meaning that individuals who identify with the Democratic Party have an average liberal-conservative leaning on their case rulings of 0.471. Interestingly enough, this means that on average democrat judges have slightly more conservative court rulings than liberal court rulings. As for judges in the Republican party, the coefficient here is -0.092 meaning that Republican judges lean .09 points more conservative on average in their court rulings that liberal judges do. Lastly for judges who do not associate with a particular party, they also lean 0.049 points more conservative on average on their court rulings than Democrat Judges do. Because the p-value is less than 0.001, this is statistically significant with an alpha value of 0.05, meaning that we can reject the null hypothesis that there is no relationship between personal political affiliation and the ideological leanings of court rulings. However, once again, with this study I believe there are numerous other confounding variables that do influence personal biases, therefore, this visible relationship should not be interpreted as causal, but instead simply as correlation. 
+
+### Relating to Case Type
+
+Furthermore, I wanted to evaluate if individuals were more or less impartial when it came to a specific type of court case. In this, I calculated the average leaning of the court ruling for each type of case category and sorted by which party the judge aligns with. 
+
+```{r}
+case_chart <- fdc_data |> 
+  mutate(
     case_cat = case_when(category == 1 ~ "Criminal Justice Case",
                          category == 2 ~ "Civil Liberties Case",
                          category == 3 ~ "Economic Regulation Case")
-  ) 
-
-figure_2 <- fdc_data |> 
-  filter(party == 1 | party == 2) |>
+  )|>
+  filter(party == 1 | party == 2 | party == 3) |>
   group_by(party, case_cat) |>
   summarize(
     mean_decision = mean(libcon)
@@ -73,9 +108,53 @@ figure_2 <- fdc_data |>
     values_from = mean_decision
   )
 
-knitr::kable(figure_2,  col.names = c("Case Category", "Democrat", "Republican"))
+knitr::kable(case_chart, col.names = c("Case Category", "Democrat", "Republican", "Independent"))
 ```
 
-**note that numbers closet to 0 are more conservative and 1 are more liberal
+To me, this chart yielded extremely interesting results. From this chart, we can see that Republican judges tend to vote more conservative than Democrat and Independent judges amongst all case types. However it is thoroughly interesting that for civil liberties cases and criminal justice cases Democrat judges have ideological decisions below .5 which means a majority of the time they are leaning more conservative. This same trend also applies to Independent judges. Furthermore,  for economic regulation cases, republican judges have ideological decisions above .5 meaning they lean more liberal on those types of cases, as do both Democrat and Independent judges. The way I analyze this data is that the closer to .5 a judges rulings are, the less biased they are because that means they are ruling both conservatively and liberally an even number of times. Assessing from this perspective, it becomes evident that overall Democratic judges are the most impartial on Civil Liberties and Criminal justices cases (even so much as to sway away from their personal beliefs a majority of the time). Furthermore, for economic regulation cases, Republicans are the most impartial.
 
-From this chart, we can see that republican judges tend to vote more conservative than democrat judges amongst all case types. However it is thoroughly interesting that for civil liberties cases and criminal justice cases democrat judges have ideological decisions below .5 which menas a majority of the time they are leaning more conservative. Furthermore, it is also interesting that for economic regulation cases, republican judges have ideological decisions above .5 meaning they lean more liberal on those types of cases.
+### Case Type Relations show graphically
+
+The graph below showcases similar data as the chart above but instead graphically to offer an alternate way of viewing.
+
+```{r}
+fdc_data$party <- as.factor(fdc_data$party)
+
+chart_1 <- fdc_data |> 
+  filter(party == 1 | party == 2 | party == 3) |>
+  group_by(category, party) |>
+  mutate(avg_libcon = mean(libcon),
+         party = case_when(party == 1 ~ "Democrat",
+                           party == 2 ~ "Republican",
+                           party == 3 ~ "Independent"), 
+         category = case_when(category == 1 ~ "1.) Criminal Justice Case",
+                         category == 2 ~ "2.) Civil Liberties Case",
+                         category == 3 ~ "3.) Economic Regulation Case")) |>
+  ggplot(mapping = aes(x = category,
+                       y = avg_libcon,
+                       color = party,
+                       fill = party)) +
+  geom_point() +
+  labs( 
+    x = "Type of Case",
+    y = "Mean Political Leaning for Case Decisions",
+    title = "Liberal or Conservative Leaning Decisions Per Case Type",
+    subtitle = "Sorted by Party",
+    source = "Carp-Manning U.S District Court Case Database, 2016")
+
+chart_1
+```
+
+I already explained a lot of the analysis that this graph showcases above. However, I think it specifically does a good job at showcase how for Criminal Justice Cases, judges of all 3 party affiliations impose more conservative rulings. They continue to impose more conservative rulings for Civil Liberties cases as well but less than they do for criminal justice cases. And lastly, as we explore economic regulation cases, they all rule more liberally. Therefore the most conservative rulings are dished out in criminal justice cases, civil liberties cases serve as a bit of a middle ground, and there is a big increase in liberal rulings for economic regulation cases. 
+
+## Conclusion
+
+To conclude, from the regression of the main variable we can determine that there is a relationship between judges personal political beliefs and the way they rule on court cases in the United States. These results do support my hypothesis that there was some influence from personal ideologies that do get imposed (even if not intentionally) on rulings. More specifically, as observed in the following charts, this relationship does vary across case types. Republican judges appear to be thoroughly biased when it comes to Civil Liberties and Criminal Justice cases, having their decisions lean very much conservative in those areas, and the decision of democratic judges are less influenced by their own political leanings as seen in how they tend to actually decide more conservatively on those cases. Lastly, Republican judges are much more impartial in economic regulation cases. However despite these discrepancies among different case types, it is shown that overall Republican judges tend to always rule more conservatively than Democratic judges and vice-verse showcasing that there is a relationship present. The prevalance of a relationship is also supported by our rejection of the null hypothesis (that there is no relationship) as attained through the p-values above. 
+
+However, there are limitations to the study. Specifically, there are many other characteristics in which biases can be derived from and many other confounding variables that could be tested to determine trends in how justices decide on court rulings. Race, gender, experiences, etc. are all things that filter into a person's ideological makeup and that could affect their decision-making skills. It would be interesting to take this project a set further by evaluating each of those as well and drawing further connections. More so, I think if I had the time, I would improve my analysis by exploring how and if judges have become more or less impartial over time. I think the world has grown increasingly polarizing and I ended up evaluating data over an 80 year time frame, therefore, if I split it up into different time periods I think it could be interesting to evaluate if the increasing polarization in politics has caused judges to become even more biased and less impartial. 
+
+## Works Cited:
+
+Robert A. Carp and Kenneth L. Manning. 2016.  “U.S. District Court Database.” 2016 version n=110977.  URL: http://districtcourtdatabase.org
+
+“Code of Conduct for United States Judges.” *United States Courts*, 12 Mar. 2019, www.uscourts.gov/judges-judgeships/code-conduct-united-states-judges#d
